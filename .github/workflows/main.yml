@@ -1,0 +1,32 @@
+name: CICD Java Application
+on:
+  workflow_dispatch"
+  push:
+    branch:
+      - master:
+Jobs:
+  Job:
+    runs-on: ubuntu-latest
+    steps:
+      - name: clone the repo
+        uses: actions/checkout@v6
+      - name: install Java on runner
+        uses: actions/setup_Java@v5
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+      - name: build java code
+        run: mvn clean run
+      - name: Set Up Docker
+        uses: docker/setup-docker-action@V4
+      - name: Login to Docker
+        uses: docker/login-action@V3
+          with:
+            username: ${{ secrets.DOCKERHUB_USERNAME }}
+            password: ${{ secrets.DOCKERHUB_TOKEN }}
+      - name: Build & Push
+        uses: docker/build-push-actions@v6
+          with:
+            context: .
+            push: true
+            tags: anshoct18/myjavaapp
